@@ -123,8 +123,10 @@ class Diffusion(object):
                 name = f"lsun_{self.config.data.category}"
             elif self.config.data.dataset == 'CelebA_HQ':
                 name = 'celeba_hq'
+            elif self.config.data.dataset == "mamas_ahnen":
+                name = 'celeba_hq'
             else:
-                raise ValueError
+                raise ValueError("unsupported dataset for super resolution")
             if name != 'celeba_hq':
                 ckpt = get_ckpt_path(f"ema_{name}", prefix=self.args.exp)
                 print("Loading checkpoint {}".format(ckpt))
@@ -211,6 +213,8 @@ class Diffusion(object):
     def simplified_ddnm_plus(self, model, cls_fn):
         args, config = self.args, self.config
 
+        print(f'the dataset chosen is: {self.config.data.dataset}')
+
         dataset, test_dataset = get_dataset(args, config)
 
         device_count = torch.cuda.device_count()
@@ -274,11 +278,11 @@ class Diffusion(object):
             Ap = lambda z: A1p(A2p(A3p(z)))
         elif args.deg =='diy':
             # design your own degradation
-            loaded = np.load("exp/inp_masks/mask.npy")
-            mask = torch.from_numpy(loaded).to(self.device)
-            A1 = lambda z: z*mask
-            A1p = A1
-            
+            # loaded = np.load("exp/inp_masks/mask.npy")
+            # mask = torch.from_numpy(loaded).to(self.device)
+            # A1 = lambda z: z*mask
+            # A1p = A1
+            print(f"Using own degradation rulez !!!1 ")
             A2 = lambda z: color2gray(z)
             A2p = lambda z: gray2color(z)
             
@@ -286,8 +290,10 @@ class Diffusion(object):
             A3 = torch.nn.AdaptiveAvgPool2d((256//scale,256//scale))
             A3p = lambda z: MeanUpsample(z,scale)
             
-            A = lambda z: A3(A2(A1(z)))
-            Ap = lambda z: A1p(A2p(A3p(z)))
+            A = lambda z: A2(z) # A3(A2(z))  # A3(A2(A1(z)))
+            Ap = lambda z: A2p(A3p(z))  # A1p(A2p(A3p(z)))
+            # A = lambda z: color2gray(z)
+            # Ap = lambda z: gray2color(z)
         else:
             raise NotImplementedError("degradation type not supported")
 
@@ -418,6 +424,8 @@ class Diffusion(object):
 
     def svd_based_ddnm_plus(self, model, cls_fn):
         args, config = self.args, self.config
+
+        print(f'the dataset chosen is: {self.config.data.dataset}')
 
         dataset, test_dataset = get_dataset(args, config)
 

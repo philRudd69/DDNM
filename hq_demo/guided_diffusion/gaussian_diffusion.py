@@ -582,10 +582,10 @@ class GaussianDiffusion:
         scale = model_kwargs['scale'] 
 
         if 256%scale!=0:
-            raise ValueError("Please set a SR scale divisible by 256")
+            raise ValueError(f"MFZ: Please set a SR scale divisible by 256: Modulo result 256%scale={256%scale}, with scale={scale}")
         if gt.shape[2]!=256 and conf.name=='face256':
             print("gt.shape:",gt.shape)
-            raise ValueError("Only support output size 256x256 for face images")
+            raise ValueError(f"Only support output size 256x256 for face images. Your size is {gt.shape}")
 
         if model_kwargs['resize_y']:
             resize_y = lambda z: MeanUpsample(z,scale)
@@ -650,7 +650,7 @@ class GaussianDiffusion:
         model_kwargs['W_target'] = W_target
 
         if H_target<256 or W_target<256:
-            raise ValueError("Please set a larger SR scale")
+            raise ValueError(f"Please set a larger SR scale. H_target = {H_target}, W_target = {W_target} must be larger than 256!")
 
         image_savepath = os.path.join('results/'+model_kwargs['save_path']+'/Apy')
         os.makedirs(image_savepath, exist_ok=True)

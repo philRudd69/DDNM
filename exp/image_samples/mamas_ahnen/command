@@ -1,0 +1,1 @@
+python main.py --config mamas_ahnen.yml --path_y exp/datasets/mamas_ahnen --deg "colorization" --deg_scale 8 --sigma_y 0.0 --eta 0.5 -i mamas_ahnen
